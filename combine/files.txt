@@ -1,0 +1,5 @@
+src/testing/CLUnitTest.js
+src/testing/ErrorHandler.js
+src/testing/IResultService.js
+src/testing/TestingConsole.js
+src/testing/testingMain.js
