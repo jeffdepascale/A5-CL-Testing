@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<script type="text/javascript" src="../lib/A5-CL.js"></script>
+		<script type="text/javascript" src="../src/testing/CLUnitTest.js"></script>
+		<script type="text/javascript" src="../src/testing/core/ErrorHandler.js"></script>
+		<script type="text/javascript" src="../src/testing/IResultService.js"></script>
+		<script type="text/javascript" src="../src/testing/core/TestingConsole.js"></script>
+		<script type="text/javascript" src="../src/testing/core/TestFrame.js"></script>
+		<script type="text/javascript" src="../src/testing/testingMain.js"></script>
+		<script type="text/javascript">	
+			a5.cl.PluginConfig('a5.cl.testing.Testing', {
+				runTests:true,
+				iframeURL:a5.cl.core.Utils.getParameterByName('testURL')
+			})
+
+			var app = a5.cl.CreateApplication({
+				applicationPackage: 'a5.unitTest'
+			});
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

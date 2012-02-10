@@ -4,7 +4,13 @@ a5.Package('a5.cl.testing')
 	.Extends('a5.cl.CLBase')
 	.Static(function(CLUnitTest){
 		
-		CLUnitTest.COMPLETE = 'a5_cl_testing_complete'
+		CLUnitTest.COMPLETE = 'a5_cl_testing_complete';
+		
+		CLUnitTest._cl_testRef = null;
+		
+		CLUnitTest.testingRef = function(){
+			return CLUnitTest._cl_testRef || a5.cl.testing.Testing();
+		}
 		
 	})
 	.Prototype('CLUnitTest', 'singleton', function(proto, im, CLUnitTest){
@@ -30,19 +36,19 @@ a5.Package('a5.cl.testing')
 		}
 		
 		proto.log = function(value){
-			this.Testing().log(value);
+			CLUnitTest.testingRef().log(value);
 		}
 		
 		proto.warn = function(value){
-			this.Testing().warn(value);
+			CLUnitTest.testingRef().warn(value);
 		}
 		
 		proto.error = function(value){
-			this.Testing().fail(value);
+			CLUnitTest.testingRef().fail(value);
 		}
 		
 		proto.fail = function(value){
-			this.Testing().fail(value);
+			CLUnitTest.testingRef().fail(value);
 		}
 
 });

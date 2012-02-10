@@ -1,0 +1,8 @@
+a5.cl.PluginConfig('a5.cl.testing.Testing', {
+	runTests:true,
+	iframeURL:a5.cl.core.Utils.getParameterByName('testURL') || 'index.html'
+})
+
+var app = a5.cl.CreateApplication({
+	applicationPackage: 'a5.unitTest'
+});

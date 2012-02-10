@@ -21,10 +21,10 @@ done < ./combine/files.txt
 cat ./combine/closures/pluginclose.txt >> ./bin/combine.temp.js
 
 java -jar ./combine/yuicompressor-2.4.2.jar ./bin/combine.temp.js -o ./bin/combine-min.temp.js --charset utf-8
-cat ./combine/copyrights.txt ./bin/combine.temp.js > ./bin/A5-Testing.js
-cat ./combine/copyrights.txt ./bin/combine-min.temp.js > ./bin/A5-Testing-min.js
+cat ./combine/copyrights.txt ./bin/combine.temp.js > ./bin/A5-CL-Testing.js
+cat ./combine/copyrights.txt ./bin/combine-min.temp.js > ./bin/A5-CL-Testing-min.js
 rm ./bin/combine.temp.js
 rm ./bin/combine-min.temp.js
-gzip -c ./bin/A5-Testing-min.js > ./bin/A5-Testing-min.js.gz
+gzip -c ./bin/A5-CL-Testing-min.js > ./bin/A5-CL-Testing-min.js.gz
 : -------------------- index close--------------------
 echo '<body>\n\t</body>\n</html>' >> ./bin/index.html

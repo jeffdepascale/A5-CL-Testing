@@ -1,3 +1,243 @@
+//A5, Copyright (c) 2011, Jeff dePascale & Brian Sutliffe. http://www.jeffdepascale.com
+(function( a5, undefined ) {
+a5.Package('a5.cl.testing')
+	
+	.Extends('a5.cl.CLBase')
+	.Static(function(CLUnitTest){
+		
+		CLUnitTest.COMPLETE = 'a5_cl_testing_complete';
+		
+		CLUnitTest._cl_testRef = null;
+		
+		CLUnitTest.testingRef = function(){
+			return CLUnitTest._cl_testRef || a5.cl.testing.Testing();
+		}
+		
+	})
+	.Prototype('CLUnitTest', 'singleton', function(proto, im, CLUnitTest){
+		
+		proto.CLUnitTest = function(){
+			proto.superclass(this);
+		}
+		
+		proto.runTest = function(){
+			
+		}
+		
+		proto.priority = function(){
+			
+		}
+		
+		proto.watch = function(){
+			
+		}
+		
+		proto.testComplete = function(){
+			this.dispatchEvent(CLUnitTest.COMPLETE);
+		}
+		
+		proto.log = function(value){
+			CLUnitTest.testingRef().log(value);
+		}
+		
+		proto.warn = function(value){
+			CLUnitTest.testingRef().warn(value);
+		}
+		
+		proto.error = function(value){
+			CLUnitTest.testingRef().fail(value);
+		}
+		
+		proto.fail = function(value){
+			CLUnitTest.testingRef().fail(value);
+		}
+
+});
+
+if(a5.GetNamespace('a5.cl.mvc', null, true)){
+	a5.Package('a5.cl.testing.core')
+		
+		.Extends('a5.cl.CLController')
+		.Class('ErrorHandler', function(self, im, ErrorHandler){
+			
+			var console;
+		
+			self.ErrorHandler = function($console){
+				console = $console;
+				self.superclass(this);
+			}
+			
+			/*
+			self._500 = function(msg, info){
+				console.renderError(500, msg, info);
+			}
+			
+			self._400 = function(msg, info){
+				console.renderError(404, msg, info);
+			}
+			*/
+	});
+}
+
+
+a5.Package('a5.cl.testing')
+	
+	.Interface('IResultService', function(cls){
+		
+		cls.sendResults = function(){}
+		
+});
+
+
+if(a5.GetNamespace('a5.cl.mvc', null, true)){
+	a5.Package('a5.cl.testing.core')
+		
+		.Import()
+		.Extends('a5.cl.mvc.core.SystemWindow')
+		.Class('TestingConsole', function(self, im, TestingConsole){
+			
+			var testing,
+				runBtn,
+				toggleBtn,
+				header,
+				infoBar,
+				counts = {error:0, warn:0, log:0, fail:0},
+				fullDisplay = true;
+				console;
+		
+			self.TestingConsole = function($testing){
+				testing = $testing;
+				self.superclass(this);
+				self.relY(true).constrainChildren(true).minWidth(500);
+				runBtn = self.create(a5.cl.ui.buttons.UIButton, ['Start tests']);
+				runBtn.alignX('center').y(20);
+				header = self.create(a5.cl.CLViewContainer);
+				header.height(27);
+				infoBar = self.create(a5.cl.CLViewContainer);
+				infoBar.border(1).hide();
+				countsView = self.create(a5.cl.ui.UITextField);
+				countsView.nonBreaking(true).x(5).y(3);
+				toggleBtn = self.create(a5.cl.ui.buttons.UIButton, ['Minimize']);
+				toggleBtn.addEventListener(a5.cl.ui.events.UIMouseEvent.CLICK, eToggleDisplayHandler);
+				toggleBtn.alignX('right').x(-1).y(1);
+				var title = self.create(a5.cl.ui.UITextField, ['A5 Testing Suite']);
+				title.alignX('center').y(100).fontSize(20).bold(true).width('auto').nonBreaking(true);
+				console = self.create(a5.cl.CLViewContainer);
+				console.alignX('center').y(20).relY(true);
+				console.scrollYEnabled(true).width('60%').height(200).border(1);
+				runBtn.addEventListener(a5.cl.ui.events.UIMouseEvent.CLICK, eRunTestsHandler);
+				header.addSubView(infoBar);
+				infoBar.addSubView(countsView);
+				header.addSubView(toggleBtn);
+				self.addSubView(header);
+				self.addSubView(title);
+				self.addSubView(runBtn);
+				self.addSubView(console);
+				updateCounts();
+			}
+			
+			self.renderError = function(type, msg, info){
+				console.log(type + ': ' + msg);
+			}
+			
+			self.showStatus = function(type, value){
+				var tf = self.create(a5.cl.ui.UITextField, [(type.substr(0, 1).toUpperCase() + type.substr(1)) + ': ' + value]);
+				tf.border(1).bold(true).padding(2);
+				switch(type){
+					case 'error':
+					case 'fail':
+						tf.backgroundColor('#FFB6C1');
+						tf.textColor('#FF0000');
+						break;
+					case 'warn':
+						tf.backgroundColor('#FFFF00');
+						break;
+					case 'log':
+						
+						break;
+				}
+				updateCounts(type, 1);
+				console.addSubView(tf);
+			}
+			
+			var updateCounts = function(type, value){
+				if(type && value)
+					counts[type] += value;
+				countsView.text('<b>A5 Testing Suite</b>              Fails: ' + counts.fail + ' | Errors: ' + counts.error + ' | Warnings: ' + counts.warn + ' | Logs: ' + counts.log);
+			}
+			
+			var eRunTestsHandler = function(){
+				testing.startTests();
+			}
+			
+			var eToggleDisplayHandler = function(){
+				fullDisplay = !fullDisplay;
+				if(fullDisplay){
+					toggleBtn.label('Minimize');
+					infoBar.hide();
+					self.height('100%');	
+				} else {
+					toggleBtn.label('Maximize');
+					infoBar.show();
+					self.height(27)
+				}
+			}
+	
+	});
+}
+
+
+a5.Package('a5.cl.testing.core')
+
+	.Extends('a5.cl.CLBase')
+	.Class('TestFrame', function(cls, im){
+		
+		var testRef,
+			iframe,
+			doc;
+		
+		cls.TestFrame = function($testRef, url){
+			cls.superclass(this);
+			testRef = $testRef;
+			iframe = document.createElement('iframe');
+			iframe.frameBorder = 0;
+			iframe.style.width = iframe.style.height = '0px';
+			iframe.src = url;
+			this.cl().addEventListener(a5.cl.CLEvent.GLOBAL_UPDATE_TIMER_TICK, checkFrameDOM, false, this);
+			document.body.appendChild(iframe);
+		}	
+		
+		cls.getA5 = function(){
+			return frameEval('a5');
+		}
+		
+		cls.context = function(){
+			return iframe.contentWindow.window;
+		}
+		
+		var frameEval = function(str){
+			iframe.contentWindow.focus();
+			if(iframe.contentWindow.execScript)
+				return iframe.contentWindow.execScript(str);
+			else 
+				return iframe.contentWindow.eval(str);
+		}
+		
+		var checkFrameDOM = function(){
+			var isReady = false;
+			try{
+				if(frameEval('a5.cl') !== undefined)
+					isReady = true;
+			} catch(e){}
+			if(isReady){
+				this.cl().removeEventListener(a5.cl.CLEvent.GLOBAL_UPDATE_TIMER_TICK, checkFrameDOM);
+				this.dispatchEvent('READY');
+			}	
+				
+		}
+		
+})
+
 
 a5.Package('a5.cl.testing')
 	
@@ -220,3 +460,6 @@ a5.Package('a5.cl.testing')
 			svc.sendResults(resultArray);
 		}
 });
+
+
+})(a5);
