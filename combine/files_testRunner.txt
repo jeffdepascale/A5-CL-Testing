@@ -1,5 +1,5 @@
 lib/A5-CL.js
-src/testing/CLUnitTest.js
+src/CLUnitTest.js
 src/testing/IResultService.js
 src/testing/core/TestFrame.js
 src/testing/testingMain.js

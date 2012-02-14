@@ -1,4 +1,4 @@
-src/testing/CLUnitTest.js
+src/CLUnitTest.js
 src/testing/core/ErrorHandler.js
 src/testing/IResultService.js
 src/testing/core/TestingConsole.js

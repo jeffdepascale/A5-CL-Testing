@@ -1,6 +1,6 @@
 //A5, Copyright (c) 2011, Jeff dePascale & Brian Sutliffe. http://www.jeffdepascale.com
 (function( a5, undefined ) {
-a5.Package('a5.cl.testing')
+a5.Package('a5.cl')
 	
 	.Extends('a5.cl.CLBase')
 	.Static(function(CLUnitTest){
@@ -16,16 +16,21 @@ a5.Package('a5.cl.testing')
 	})
 	.Prototype('CLUnitTest', 'singleton', function(proto, im, CLUnitTest){
 		
+		this.Properties(function(){
+			this._cl_async = false;
+		})
+		
 		proto.CLUnitTest = function(){
 			proto.superclass(this);
 		}
 		
-		proto.runTest = function(){
-			
+		proto.asyncTest = function(){
+			this._cl_async = true;
 		}
 		
-		proto.priority = function(){
-			
+		proto.runTest = function(){
+			if(this.runTest === proto.runTest)
+				this.error('runTest method not implemented on CLUnitTest class ' + this.namespace());
 		}
 		
 		proto.watch = function(){
@@ -33,7 +38,8 @@ a5.Package('a5.cl.testing')
 		}
 		
 		proto.testComplete = function(){
-			this.dispatchEvent(CLUnitTest.COMPLETE);
+			if(this._cl_async == true)
+				this.dispatchEvent(CLUnitTest.COMPLETE);
 		}
 		
 		proto.log = function(value){
@@ -241,6 +247,7 @@ a5.Package('a5.cl.testing.core')
 
 a5.Package('a5.cl.testing')
 	
+	.Import('a5.cl.CLUnitTest')	
 	.Extends('a5.cl.CLAddon')
 	.Class('Testing', function(self, im, Testing){
 		
@@ -337,19 +344,20 @@ a5.Package('a5.cl.testing')
 					var a5ctx = a5;
 					if (testFrame) {
 						a5ctx = testFrame.context().a5;
-						a5ctx.cl.testing.CLUnitTest._cl_testRef = self;
+						a5ctx.cl.CLUnitTest._cl_testRef = self;
 					}
-					if (self.pluginConfig().runThirdPartyTests === true) {
-						for(var i = 0, l =a5ctx.cl.testing.CLUnitTest._extenderRef.length; i<l; i++)
-							testRef.push(a5ctx.cl.testing.CLUnitTest._extenderRef[i])
-					}	
 					var app = testFrame ? a5ctx.cl.instance().applicationPackage() : self.cl().applicationPackage(),
-						nm = app['tests'];
-					for (var prop in nm) {
-						var cls = nm[prop];
-						if(cls.doesExtend && cls.doesExtend('a5.cl.testing.CLUnitTest'))
-							testRef.push(cls);
-					}
+						pkg = app['tests'];
+					
+					
+					for(var i = 0, l =a5ctx.cl.CLUnitTest._extenderRef.length; i<l; i++){
+						var clsRef = a5ctx.cl.CLUnitTest._extenderRef[i];
+						if(clsRef.classPackage(true) === pkg)
+							testRef.push(clsRef);
+						else if (self.pluginConfig().runThirdPartyTests === true)
+							testRef.push(clsRef);
+					}		
+
 					totalTests = testRef.length;
 					testCount = 0;
 					resultArray = [];
@@ -411,12 +419,21 @@ a5.Package('a5.cl.testing')
 			} else {
 				didFail = false;
 				var testCls = testRef[testCount],
-					ctx = testFrame ? testFrame.context().a5.cl.instance() : self;
+					ctx = testFrame ? testFrame.context().a5.cl.instance() : self,
+					async;
 				runningTest = ctx.create(testCls.namespace());
-				runningTest.addEventListener(im.CLUnitTest.COMPLETE, eTestCompleteHandler);
+				async = runningTest._cl_async;
+				if(async === true)
+					runningTest.addEventListener(im.CLUnitTest.COMPLETE, eTestCompleteHandler);
 				testCount++;
 				lastTestStart = new Date();
-				runningTest.runTest();
+				try {
+					runningTest.runTest();
+				} catch(e){
+					runningTest.error(e);
+				}
+				if(!async)
+					eTestCompleteHandler();
 			}
 		}
 		
