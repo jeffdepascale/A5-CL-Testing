@@ -33,8 +33,8 @@ a5.Package('a5.cl')
 				this.error('runTest method not implemented on CLUnitTest class ' + this.namespace());
 		}
 		
-		proto.watch = function(){
-			
+		proto.Override.assert = function(check, response){
+			proto.superclass().assert.call(this, check, this.className() + " Assertion Failure: " + response)
 		}
 		
 		proto.testComplete = function(){
@@ -42,11 +42,11 @@ a5.Package('a5.cl')
 				this.dispatchEvent(CLUnitTest.COMPLETE);
 		}
 		
-		proto.log = function(value){
+		proto.Override.log = function(value){
 			CLUnitTest.testingRef().log(value);
 		}
 		
-		proto.warn = function(value){
+		proto.Override.warn = function(value){
 			CLUnitTest.testingRef().warn(value);
 		}
 		
@@ -223,10 +223,7 @@ a5.Package('a5.cl.testing.core')
 		
 		var frameEval = function(str){
 			iframe.contentWindow.focus();
-			if(iframe.contentWindow.execScript)
-				return iframe.contentWindow.execScript(str);
-			else 
-				return iframe.contentWindow.eval(str);
+			return iframe.contentWindow.eval(str);
 		}
 		
 		var checkFrameDOM = function(){

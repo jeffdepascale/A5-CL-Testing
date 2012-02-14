@@ -28,10 +28,7 @@ a5.Package('a5.cl.testing.core')
 		
 		var frameEval = function(str){
 			iframe.contentWindow.focus();
-			if(iframe.contentWindow.execScript)
-				return iframe.contentWindow.execScript(str);
-			else 
-				return iframe.contentWindow.eval(str);
+			return iframe.contentWindow.eval(str);
 		}
 		
 		var checkFrameDOM = function(){
