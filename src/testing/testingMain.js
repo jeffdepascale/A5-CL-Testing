@@ -36,7 +36,7 @@ a5.Package('a5.cl.testing')
 			})
 		}
 		
-		self.initializePlugin = function(){
+		self.Override.initializePlugin = function(){
 			if (self.pluginConfig().resultService) {
 				var svc = a5.GetNamespace(self.pluginConfig().resultService);
 				if (!svc || svc && !svc instanceof a5.cl.CLAjax || !svc.doesImplement('a5.cl.testing.IResultService')) {
@@ -72,7 +72,7 @@ a5.Package('a5.cl.testing')
 			return true;
 		}	
 		
-		self.log = function(value){
+		self.Override.log = function(value){
 			showStatus('log', value);
 		}
 		
@@ -86,7 +86,7 @@ a5.Package('a5.cl.testing')
 			eTestCompleteHandler();
 		}
 		
-		self.warn = function(value){
+		self.Override.warn = function(value){
 			showStatus('warn', value);
 		}
 		

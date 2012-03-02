@@ -229,7 +229,7 @@ a5.Package('a5.cl.testing.core')
 		var checkFrameDOM = function(){
 			var isReady = false;
 			try{
-				if(frameEval('a5.cl') !== undefined)
+				if(frameEval('"a5" in window') && frameEval('a5.cl') !== undefined)
 					isReady = true;
 			} catch(e){}
 			if(isReady){
